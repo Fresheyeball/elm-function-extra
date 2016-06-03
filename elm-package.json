@@ -1,0 +1,14 @@
+{
+    "version": "1.0.0",
+    "summary": "Extra functions for working with functions",
+    "repository": "https://github.com/Fresheyeball/elm-function-extra.git",
+    "license": "BSD3",
+    "source-directories": [
+        "."
+    ],
+    "exposed-modules": ["Function.Extra"],
+    "dependencies": {
+        "elm-lang/core": "4.0.1 <= v < 5.0.0"
+    },
+    "elm-version": "0.17.0 <= v < 0.18.0"
+}
