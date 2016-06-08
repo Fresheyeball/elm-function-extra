@@ -8,8 +8,10 @@ module Function.Extra exposing (..)
 @docs (>>>>), (<<<<)
 
 ## Function properties
-@docs map, map2, map3, ap, andThen, singleton, on
+@docs map, map2, map3, map4, ap, andThen, singleton, on
 
+## Reorder
+@docs swirlr, swirll, flip3
 -}
 
 {-|
@@ -65,6 +67,10 @@ map3 : (a -> b -> c -> d) -> (x -> a) -> (x -> b) -> (x -> c) -> x -> d
 map3 f a b c = map f a `ap` b `ap` c
 
 {-|-}
+map4 : (a -> b -> c -> d -> e) -> (x -> a) -> (x -> b) -> (x -> c) -> (x -> d) -> x -> e
+map4 f a b c d = map f a `ap` b `ap` c `ap` d
+
+{-|-}
 ap : (x -> a -> b) -> (x -> a) -> x -> b
 ap ff f x = ff x (f x)
 
@@ -87,3 +93,28 @@ sortBy (compare `on` fst)
 -}
 on : (b -> b -> c) -> (a -> b) -> a -> a -> c
 on g f = \x y -> f x `g` f y
+
+{-|
+```elm
+foo = List.foldr (\a b -> bar a ++ baz b) 0 xs
+--becomes
+foo = swirlr List.foldr xs (\a b -> bar a ++ baz b) 0
+```
+-}
+swirlr : (a -> b -> c -> d) -> c -> a -> b -> d
+swirlr f c a b = f a b c
+
+{-|
+```elm
+foo = List.foldr (\a b -> bar a ++ baz b) 0 xs
+--becomes
+foo = swirll List.foldr 0 xs
+  <| \a b -> bar a ++ baz b
+```
+-}
+swirll : (a -> b -> c -> d) -> b -> c -> a -> d
+swirll f b c a = f a b c
+
+{-|-}
+flip3 : (a -> b -> c -> d) -> c -> b -> a -> d
+flip3 f c b a = f a b c
