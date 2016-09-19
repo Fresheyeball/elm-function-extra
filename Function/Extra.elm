@@ -70,9 +70,18 @@ map3 f a b c = map f a `ap` b `ap` c
 map4 : (a -> b -> c -> d -> e) -> (x -> a) -> (x -> b) -> (x -> c) -> (x -> d) -> x -> e
 map4 f a b c d = map f a `ap` b `ap` c `ap` d
 
-{-|-}
-ap : (x -> a -> b) -> (x -> a) -> x -> b
-ap ff f x = ff x (f x)
+{-| Make a function that will call two functions on the same value and subsequently combine them.
+
+Useful for longer chains, see the following examples: 
+
+    f = (,) `map` sqrt `andMap` (\x -> x ^ 2)
+    f 4 -- (2, 16)
+    
+    g = (,,) `map` toString `andMap` ((+) 1) `andMap` (\x -> x % 5)
+    g 12 -- ("12",13,2)
+-}
+andMap : (x -> a -> b) -> (x -> a) -> x -> b
+andMap ff f x = ff x (f x)
 
 {-|
 The functions are Monads and so should have an `andThen`.
