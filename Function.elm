@@ -1,6 +1,9 @@
 module Function exposing (..)
 
 {-|
+## Function arrow as a type
+@docs Arrow
+
 ## Compose a two parameter function with a single parameter function
 @docs (>>>), (<<<)
 
@@ -8,11 +11,17 @@ module Function exposing (..)
 @docs (>>>>), (<<<<)
 
 ## Function properties
-@docs map, map2, map3, map4, andMap, andThen, singleton, on
+@docs map, map2, map3, map4, map5, map6, andMap, andThen, singleton, on
 
 ## Reorder
 @docs swirlr, swirll, flip3
 -}
+
+{-|
+Making `->` into a type makes reading it much easier,
+to read the effects when treating functions as a data structure.
+-}
+type alias Arrow a b = a -> b
 
 {-|
 ```elm
@@ -55,20 +64,48 @@ bar <<<< foo
 (<<<<) = flip (>>>>)
 
 {-|-}
-map : (a -> b) -> (x -> a) -> x -> b
+map : (a -> b) -> Arrow x a -> Arrow x b
 map = (<<)
 
 {-|-}
-map2 : (a -> b -> c) -> (x -> a) -> (x -> b) -> x -> c
-map2 f a b = andMap b <| map f a
+map2 : (a -> b -> c) -> Arrow x a -> Arrow x b -> Arrow x c
+map2 f a b =
+  map f a
+  |> andMap b
 
 {-|-}
-map3 : (a -> b -> c -> d) -> (x -> a) -> (x -> b) -> (x -> c) -> x -> d
-map3 f a b c = andMap c <| andMap b <| map f a
+map3 : (a -> b -> c -> d) -> Arrow x a -> Arrow x b -> Arrow x c -> Arrow x d
+map3 f a b c =
+  map f a
+  |> andMap b
+  |> andMap c
 
 {-|-}
-map4 : (a -> b -> c -> d -> e) -> (x -> a) -> (x -> b) -> (x -> c) -> (x -> d) -> x -> e
-map4 f a b c d = andMap d <| andMap c <| andMap b <| map f a
+map4 : (a -> b -> c -> d -> e) -> Arrow x a -> Arrow x b -> Arrow x c -> Arrow x d -> Arrow x e
+map4 f a b c d =
+  map f a
+  |> andMap b
+  |> andMap c
+  |> andMap d
+
+{-|-}
+map5 : (a -> b -> c -> d -> e -> f) -> Arrow x a -> Arrow x b -> Arrow x c -> Arrow x d -> Arrow x e -> Arrow x f
+map5 f a b c d e =
+    map f a
+    |> andMap b
+    |> andMap c
+    |> andMap d
+    |> andMap e
+
+{-|-}
+map6 : (a -> b -> c -> d -> e -> f -> g) -> Arrow x a -> Arrow x b -> Arrow x c -> Arrow x d -> Arrow x e -> Arrow x f -> Arrow x g
+map6 f a b c d e g =
+    map f a
+    |> andMap b
+    |> andMap c
+    |> andMap d
+    |> andMap e
+    |> andMap g
 
 {-| Make a function that will call two functions on the same value and subsequently combine them.
 
@@ -80,19 +117,19 @@ Useful for longer chains, see the following examples:
     g = (,,) `map` toString `andMap` ((+) 1) `andMap` (\x -> x % 5)
     g 12 -- ("12",13,2)
 -}
-andMap : (x -> a) -> (x -> a -> b) -> x -> b
+andMap : Arrow x a -> Arrow x (a -> b) -> Arrow x b
 andMap f ff = \x -> ff x (f x)
 
 {-|
 The functions are Monads and so should have an `andThen`.
 -}
-andThen : (b -> a -> c) -> (a -> b) -> a -> c
+andThen : (a -> Arrow x b) -> Arrow x a -> Arrow x b
 andThen k f = \x -> k (f x) x
 
 {-|
 The functions are Monads and so should have a `singleton`.
 -}
-singleton : a -> b -> a
+singleton : a -> Arrow x a
 singleton = always
 
 {-|

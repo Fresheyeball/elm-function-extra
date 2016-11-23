@@ -8,10 +8,12 @@
     ],
     "exposed-modules": [
         "Function",
-        "Function.Infix"
+        "Function.Infix",
+        "Function.Pro"
     ],
     "dependencies": {
-        "elm-lang/core": "5.0.0 <= v < 6.0.0"
+        "elm-lang/core": "5.0.0 <= v < 6.0.0",
+        "toastal/either": "3.0.0 <= v < 4.0.0"
     },
     "elm-version": "0.18.0 <= v < 0.19.0"
 }
